@@ -40,22 +40,14 @@ function createServer() {
   });
   const upload = multer({ storage });
 
-  function requireAuth(req, res, next) {
-    if (req.session && req.session.authenticated) return next();
-    res.status(401).json({ error: '인증이 필요합니다' });
-  }
+  // 인증 비활성화 (관리자 전용 비공개 링크 공유 방식)
 
   app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
   });
 
   app.post('/api/login', (req, res) => {
-    if (req.body.password === (process.env.ADMIN_PASSWORD || 'admin1234')) {
-      req.session.authenticated = true;
-      res.json({ success: true });
-    } else {
-      res.status(401).json({ error: '비밀번호가 틀렸습니다' });
-    }
+    res.json({ success: true });
   });
 
   app.post('/api/logout', (req, res) => {
@@ -64,14 +56,14 @@ function createServer() {
   });
 
   app.get('/api/auth/check', (req, res) => {
-    res.json({ authenticated: !!(req.session && req.session.authenticated) });
+    res.json({ authenticated: true });
   });
 
-  app.get('/api/countries', requireAuth, async (req, res) => {
+  app.get('/api/countries', async (req, res) => {
     res.json(await db.getCountries());
   });
 
-  app.get('/api/countries/:id', requireAuth, async (req, res) => {
+  app.get('/api/countries/:id', async (req, res) => {
     const country = await db.getCountryById(req.params.id);
     if (!country) return res.status(404).json({ error: '국가를 찾을 수 없습니다' });
     
@@ -80,47 +72,47 @@ function createServer() {
     res.json({ country, parties, parliament });
   });
 
-  app.post('/api/countries', requireAuth, async (req, res) => {
+  app.post('/api/countries', async (req, res) => {
     const id = await db.insertCountry(req.body);
     res.json({ id, success: true });
   });
 
-  app.put('/api/countries/:id', requireAuth, async (req, res) => {
+  app.put('/api/countries/:id', async (req, res) => {
     const success = await db.updateCountry(req.params.id, req.body);
     if (success) res.json({ success: true });
     else res.status(400).json({ error: '수정 실패' });
   });
 
-  app.delete('/api/countries/:id', requireAuth, async (req, res) => {
+  app.delete('/api/countries/:id', async (req, res) => {
     await db.deleteCountry(req.params.id);
     res.json({ success: true });
   });
 
-  app.post('/api/upload/leader', requireAuth, upload.single('image'), (req, res) => {
+  app.post('/api/upload/leader', upload.single('image'), (req, res) => {
     if (!req.file) return res.status(400).json({ error: '이미지 필요' });
     res.json({ success: true, path: `/uploads/${req.file.filename}` });
   });
 
-  app.put('/api/parliament/:countryId', requireAuth, async (req, res) => {
+  app.put('/api/parliament/:countryId', async (req, res) => {
     await db.updateParliament(req.params.countryId, req.body);
     res.json({ success: true });
   });
 
-  app.get('/api/parties/:countryId', requireAuth, async (req, res) => {
+  app.get('/api/parties/:countryId', async (req, res) => {
     res.json(await db.getPartiesByCountry(req.params.countryId));
   });
 
-  app.post('/api/parties', requireAuth, async (req, res) => {
+  app.post('/api/parties', async (req, res) => {
     const id = await db.insertParty(req.body);
     res.json({ id, success: true });
   });
 
-  app.put('/api/parties/:id', requireAuth, async (req, res) => {
+  app.put('/api/parties/:id', async (req, res) => {
     await db.updateParty(req.params.id, req.body);
     res.json({ success: true });
   });
 
-  app.delete('/api/parties/:id', requireAuth, async (req, res) => {
+  app.delete('/api/parties/:id', async (req, res) => {
     await db.deleteParty(req.params.id);
     res.json({ success: true });
   });
