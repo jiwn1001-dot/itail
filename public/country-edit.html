@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>국가 편집 — SimControl</title>
+  <meta name="description" content="국가 정보 편집 - 지도자, 군사력, 의회 관리">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="/dashboard" class="navbar-brand">
+        🎮 <span>SimControl</span>
+      </a>
+      <div class="navbar-actions">
+        <button class="btn btn-danger btn-sm" id="deleteCountryBtn">🗑️ 국가 삭제</button>
+        <button class="btn btn-secondary btn-sm" id="logoutBtn">로그아웃</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="edit-container">
+    <!-- Header -->
+    <div class="edit-header">
+      <a href="/dashboard" class="back-btn">← 대시보드로 돌아가기</a>
+      <h2 id="editTitle">국가 편집</h2>
+      <button class="btn btn-primary" id="saveAllBtn">💾 모두 저장</button>
+    </div>
+
+    <!-- Basic Info Section -->
+    <div class="section">
+      <div class="section-title"><span class="icon">🏳️</span> 기본 정보</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="countryName">국가명</label>
+          <input type="text" id="countryName" class="form-control" placeholder="국가명">
+        </div>
+        <div class="form-group">
+          <label for="flagEmoji">국기 이모지</label>
+          <input type="text" id="flagEmoji" class="form-control" placeholder="🇰🇷">
+        </div>
+        <div class="form-group">
+          <label for="embedColor">임베드 색상</label>
+          <div class="color-input-group">
+            <div class="color-swatch" id="colorSwatch" style="background: #5865F2"></div>
+            <input type="color" id="embedColor" value="#5865F2">
+            <input type="text" id="embedColorText" class="form-control" placeholder="#5865F2" style="flex:1">
+          </div>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top: 20px;">
+        <div class="form-group">
+          <label for="ownerId">담당 유저 디스코드 ID (선택)</label>
+          <input type="text" id="ownerId" class="form-control" placeholder="예: 123456789012345678">
+          <small style="color: var(--text-muted); display: block; margin-top: 6px;">
+            유저의 Discord ID를 입력하면 해당 유저가 <code>/내국가</code> 명령어로 이 국가를 조회할 수 있습니다.
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leader Section -->
+    <div class="section">
+      <div class="section-title"><span class="icon">👤</span> 지도자 정보</div>
+
+      <div class="image-upload-area">
+        <div class="image-preview" id="leaderImagePreview">
+          <span class="placeholder">👤</span>
+        </div>
+        <div class="image-upload-controls">
+          <button class="btn btn-secondary btn-sm" id="uploadImageBtn">📁 사진 업로드</button>
+          <input type="file" id="leaderImageInput" accept="image/*">
+          <div class="form-group" style="margin-bottom:0">
+            <label for="leaderImageUrl" style="margin-bottom:4px">또는 이미지 URL</label>
+            <input type="text" id="leaderImageUrl" class="form-control" placeholder="https://...">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="leaderName">지도자 이름</label>
+          <input type="text" id="leaderName" class="form-control" placeholder="이름">
+        </div>
+        <div class="form-group">
+          <label for="leaderTitle">직함</label>
+          <input type="text" id="leaderTitle" class="form-control" placeholder="대통령, 총리 등">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="leaderDesc">지도자 설명</label>
+        <textarea id="leaderDesc" class="form-control" rows="3" placeholder="지도자에 대한 설명을 입력하세요"></textarea>
+      </div>
+    </div>
+
+    <!-- Economy & Stability Section -->
+    <div class="section">
+      <div class="section-title"><span class="icon">💰</span> 경제 & 안정</div>
+
+      <div class="form-group">
+        <label for="gdp">GDP (조 달러)</label>
+        <input type="number" id="gdp" class="form-control" step="0.1" min="0" placeholder="0.0">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label>📊 안정도</label>
+          <span class="slider-value" id="stabilityValue">50</span>
+        </div>
+        <input type="range" id="stability" min="0" max="100" value="50">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label>🗳️ 전쟁 지지도</label>
+          <span class="slider-value" id="warSupportValue">50</span>
+        </div>
+        <input type="range" id="warSupport" min="0" max="100" value="50">
+      </div>
+    </div>
+
+    <!-- Military Section -->
+    <div class="section">
+      <div class="section-title"><span class="icon">⚔️</span> 군사력</div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label>🏍️ 육군 역량</label>
+          <span class="slider-value" id="armyValue">0</span>
+        </div>
+        <input type="range" id="armyPower" min="0" max="100" value="0">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label>🚢 해군 역량</label>
+          <span class="slider-value" id="navyValue">0</span>
+        </div>
+        <input type="range" id="navyPower" min="0" max="100" value="0">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label>✈️ 공군 역량</label>
+          <span class="slider-value" id="airforceValue">0</span>
+        </div>
+        <input type="range" id="airforcePower" min="0" max="100" value="0">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label>☢️ 핵 역량</label>
+          <span class="slider-value" id="nuclearValue">0</span>
+        </div>
+        <input type="range" id="nuclearPower" min="0" max="100" value="0">
+      </div>
+    </div>
+
+    <!-- Parliament Section -->
+    <div class="section">
+      <div class="section-title"><span class="icon">🏛️</span> 의회 구성</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="houseName">하원 명칭</label>
+          <input type="text" id="houseName" class="form-control" placeholder="하원">
+        </div>
+        <div class="form-group">
+          <label for="houseTotal">하원 총 의석수</label>
+          <input type="number" id="houseTotal" class="form-control" min="0" placeholder="300">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="senateName">상원 명칭</label>
+          <input type="text" id="senateName" class="form-control" placeholder="상원 (없으면 '없음')">
+        </div>
+        <div class="form-group">
+          <label for="senateTotal">상원 총 의석수 (0 = 단원제)</label>
+          <input type="number" id="senateTotal" class="form-control" min="0" placeholder="0">
+        </div>
+      </div>
+
+      <!-- Seat Preview -->
+      <div class="seat-preview" id="houseSeatPreview">
+        <h4>🏛️ 하원 의석 분포</h4>
+        <div class="seat-bar" id="houseSeatBar"></div>
+        <div class="seat-legend" id="houseSeatLegend"></div>
+      </div>
+
+      <div class="seat-preview" id="senateSeatPreview" style="margin-top: 12px;">
+        <h4>🏛️ 상원 의석 분포</h4>
+        <div class="seat-bar" id="senateSeatBar"></div>
+        <div class="seat-legend" id="senateSeatLegend"></div>
+      </div>
+    </div>
+
+    <!-- Parties Section -->
+    <div class="section">
+      <div class="section-title">
+        <span class="icon">🏷️</span> 정당 관리
+        <div style="flex:1"></div>
+        <button class="btn btn-success btn-sm" id="addPartyBtn">➕ 정당 추가</button>
+      </div>
+
+      <div class="party-list" id="partyList">
+        <!-- Dynamic content -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+      <h3>⚠️ 국가 삭제</h3>
+      <p style="color: var(--text-secondary); margin-bottom: 8px;">이 국가와 모든 정당 데이터가 영구적으로 삭제됩니다.</p>
+      <p style="color: var(--danger); font-weight: 600;">이 작업은 되돌릴 수 없습니다.</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancelDelete">취소</button>
+        <button class="btn btn-danger" id="confirmDelete">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/js/country-edit.js"></script>
+</body>
+</html>

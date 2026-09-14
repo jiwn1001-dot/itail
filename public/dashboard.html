@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>대시보드 — SimControl</title>
+  <meta name="description" content="모의전용 디스코드봇 국가 관리 대시보드">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="/dashboard" class="navbar-brand">
+        🎮 <span>SimControl</span>
+      </a>
+      <div class="navbar-actions">
+        <button class="btn btn-primary btn-sm" id="addCountryBtn">
+          ➕ 국가 추가
+        </button>
+        <button class="btn btn-secondary btn-sm" id="logoutBtn">
+          로그아웃
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dashboard Content -->
+  <div class="dashboard">
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-label">등록 국가</div>
+        <div class="stat-value" id="countryCount">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">총 정당 수</div>
+        <div class="stat-value" id="partyCount">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">평균 안정도</div>
+        <div class="stat-value" id="avgStability">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">최고 GDP</div>
+        <div class="stat-value" id="topGdp">-</div>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="dashboard-header">
+      <h2>🌍 국가 관리</h2>
+    </div>
+
+    <!-- Country Grid -->
+    <div class="country-grid" id="countryGrid">
+      <!-- Dynamic content -->
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <div class="icon">🌐</div>
+      <h3>등록된 국가가 없습니다</h3>
+      <p>위의 '국가 추가' 버튼을 눌러 시작하세요.</p>
+    </div>
+  </div>
+
+  <!-- Add Country Modal -->
+  <div class="modal-overlay" id="addCountryModal">
+    <div class="modal">
+      <h3>🏳️ 새 국가 추가</h3>
+      <div class="form-group">
+        <label for="newCountryName">국가명</label>
+        <input type="text" id="newCountryName" class="form-control" placeholder="예: 캐나다" required>
+      </div>
+      <div class="form-group">
+        <label for="newCountryEmoji">국기 이모지</label>
+        <input type="text" id="newCountryEmoji" class="form-control" placeholder="예: 🇨🇦" value="🏳️">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancelAddCountry">취소</button>
+        <button class="btn btn-primary" id="confirmAddCountry">추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

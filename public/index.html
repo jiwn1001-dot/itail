@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>관리자 로그인 — 모의 시뮬레이션</title>
+  <meta name="description" content="모의전용 디스코드봇 관리자 패널 로그인">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="icon-large">🎮</div>
+      <h1>SimControl</h1>
+      <p class="subtitle">모의전용 시뮬레이션 관리자 패널</p>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="password">관리자 비밀번호</label>
+          <input
+            type="password"
+            id="password"
+            class="form-control"
+            placeholder="비밀번호를 입력하세요"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <div id="errorMsg" style="color: var(--danger); font-size: 13px; margin-bottom: 16px; display: none;"></div>
+
+        <button type="submit" class="btn btn-primary btn-full" id="loginBtn">
+          <span>🔐</span> 로그인
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/auth.js"></script>
+</body>
+</html>

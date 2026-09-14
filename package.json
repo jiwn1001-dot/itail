@@ -1,0 +1,19 @@
+{
+  "name": "simulation-discord-bot",
+  "version": "1.0.0",
+  "description": "모의전용 디스코드봇 - 국가 정보 조회 및 관리자 패널",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "deploy": "node commands/deploy.js",
+    "seed": "node database/seed.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.0",
+    "dotenv": "^16.4.0",
+    "express": "^4.21.0",
+    "express-session": "^1.18.0",
+    "multer": "^1.4.5-lts.1"
+  }
+}
