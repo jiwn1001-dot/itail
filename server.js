@@ -55,32 +55,32 @@ function createServer() {
     res.json({ authenticated: !!(req.session && req.session.authenticated) });
   });
 
-  app.get('/api/countries', requireAuth, (req, res) => {
-    res.json(db.getCountries());
+  app.get('/api/countries', requireAuth, async (req, res) => {
+    res.json(await db.getCountries());
   });
 
-  app.get('/api/countries/:id', requireAuth, (req, res) => {
-    const country = db.getCountryById(req.params.id);
+  app.get('/api/countries/:id', requireAuth, async (req, res) => {
+    const country = await db.getCountryById(req.params.id);
     if (!country) return res.status(404).json({ error: '국가를 찾을 수 없습니다' });
     
-    const parties = db.getPartiesByCountry(country.id);
-    const parliament = db.getParliament(country.id);
+    const parties = await db.getPartiesByCountry(country.id);
+    const parliament = await db.getParliament(country.id);
     res.json({ country, parties, parliament });
   });
 
-  app.post('/api/countries', requireAuth, (req, res) => {
-    const id = db.insertCountry(req.body);
+  app.post('/api/countries', requireAuth, async (req, res) => {
+    const id = await db.insertCountry(req.body);
     res.json({ id, success: true });
   });
 
-  app.put('/api/countries/:id', requireAuth, (req, res) => {
-    const success = db.updateCountry(req.params.id, req.body);
+  app.put('/api/countries/:id', requireAuth, async (req, res) => {
+    const success = await db.updateCountry(req.params.id, req.body);
     if (success) res.json({ success: true });
     else res.status(400).json({ error: '수정 실패' });
   });
 
-  app.delete('/api/countries/:id', requireAuth, (req, res) => {
-    db.deleteCountry(req.params.id);
+  app.delete('/api/countries/:id', requireAuth, async (req, res) => {
+    await db.deleteCountry(req.params.id);
     res.json({ success: true });
   });
 
@@ -89,27 +89,27 @@ function createServer() {
     res.json({ success: true, path: `/uploads/leaders/${req.file.filename}` });
   });
 
-  app.put('/api/parliament/:countryId', requireAuth, (req, res) => {
-    db.updateParliament(req.params.countryId, req.body);
+  app.put('/api/parliament/:countryId', requireAuth, async (req, res) => {
+    await db.updateParliament(req.params.countryId, req.body);
     res.json({ success: true });
   });
 
-  app.get('/api/parties/:countryId', requireAuth, (req, res) => {
-    res.json(db.getPartiesByCountry(req.params.countryId));
+  app.get('/api/parties/:countryId', requireAuth, async (req, res) => {
+    res.json(await db.getPartiesByCountry(req.params.countryId));
   });
 
-  app.post('/api/parties', requireAuth, (req, res) => {
-    const id = db.insertParty(req.body);
+  app.post('/api/parties', requireAuth, async (req, res) => {
+    const id = await db.insertParty(req.body);
     res.json({ id, success: true });
   });
 
-  app.put('/api/parties/:id', requireAuth, (req, res) => {
-    db.updateParty(req.params.id, req.body);
+  app.put('/api/parties/:id', requireAuth, async (req, res) => {
+    await db.updateParty(req.params.id, req.body);
     res.json({ success: true });
   });
 
-  app.delete('/api/parties/:id', requireAuth, (req, res) => {
-    db.deleteParty(req.params.id);
+  app.delete('/api/parties/:id', requireAuth, async (req, res) => {
+    await db.deleteParty(req.params.id);
     res.json({ success: true });
   });
 

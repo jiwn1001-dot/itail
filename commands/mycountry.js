@@ -5,7 +5,7 @@ module.exports = {
   name: '내국가',
   async execute(interaction) {
     const userId = interaction.user.id;
-    const country = db.getCountryByOwnerId(userId);
+    const country = await db.getCountryByOwnerId(userId);
 
     if (!country) {
       await interaction.reply({
@@ -15,8 +15,8 @@ module.exports = {
       return;
     }
 
-    const parties = db.getPartiesByCountry(country.id);
-    const parliament = db.getParliament(country.id) || {
+    const parties = await db.getPartiesByCountry(country.id);
+    const parliament = (await db.getParliament(country.id)) || {
       senate_total: 0, house_total: 0, senate_name: '상원', house_name: '하원'
     };
 

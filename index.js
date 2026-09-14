@@ -8,7 +8,15 @@ async function main() {
   console.log('║    🎮 모의전용 시뮬레이션 디스코드봇     ║');
   console.log('╚══════════════════════════════════════════╝\n');
 
-  console.log(`📦 등록된 국가 수: ${db.getCountries().length}개`);
+  try {
+    await db.connect(process.env.MONGODB_URI);
+  } catch (err) {
+    console.error('❌ DB 연결 에러:', err.message);
+    process.exit(1);
+  }
+
+  const countries = await db.getCountries();
+  console.log(`📦 등록된 국가 수: ${countries.length}개`);
 
   const port = process.env.PORT || 3000;
   const app = createServer();

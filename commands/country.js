@@ -5,7 +5,7 @@ module.exports = {
   name: '국가',
   async execute(interaction) {
     const name = interaction.options.getString('이름');
-    const country = db.getCountryByName(name);
+    const country = await db.getCountryByName(name);
     
     if (!country) {
       await interaction.reply({
@@ -15,8 +15,8 @@ module.exports = {
       return;
     }
 
-    const parties = db.getPartiesByCountry(country.id);
-    const parliament = db.getParliament(country.id) || {
+    const parties = await db.getPartiesByCountry(country.id);
+    const parliament = (await db.getParliament(country.id)) || {
       senate_total: 0, house_total: 0, senate_name: '상원', house_name: '하원'
     };
 
@@ -28,7 +28,7 @@ module.exports = {
 
   async autocomplete(interaction) {
     const focused = interaction.options.getFocused();
-    const countries = db.searchCountriesByName(focused);
+    const countries = await db.searchCountriesByName(focused);
     await interaction.respond(
       countries.map(c => ({ name: `${c.flag_emoji} ${c.name}`, value: c.name }))
     );

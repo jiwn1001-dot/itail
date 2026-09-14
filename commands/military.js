@@ -5,7 +5,7 @@ module.exports = {
   name: '군사력',
   async execute(interaction) {
     const name = interaction.options.getString('이름');
-    const country = db.getCountryByName(name);
+    const country = await db.getCountryByName(name);
 
     if (!country) {
       await interaction.reply({
@@ -21,7 +21,7 @@ module.exports = {
 
   async autocomplete(interaction) {
     const focused = interaction.options.getFocused();
-    const countries = db.searchCountriesByName(focused);
+    const countries = await db.searchCountriesByName(focused);
     await interaction.respond(
       countries.map(c => ({ name: `${c.flag_emoji} ${c.name}`, value: c.name }))
     );

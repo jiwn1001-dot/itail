@@ -1,83 +1,52 @@
-const fs = require('fs');
-const path = require('path');
+const mongoose = require('mongoose');
+const Country = require('./models/Country');
+const Party = require('./models/Party');
+const Parliament = require('./models/Parliament');
 
-const DB_PATH = path.join(__dirname, '..', 'data.json');
-
-// 기본 데이터 구조
-let data = {
-  countries: [],
-  parties: [],
-  parliament_config: []
-};
-
-// 고유 ID 생성을 위한 시퀀스
-let sequences = {
-  countries: 1,
-  parties: 1
-};
-
-// 데이터 로드
-function loadDb() {
-  if (fs.existsSync(DB_PATH)) {
-    try {
-      const raw = fs.readFileSync(DB_PATH, 'utf8');
-      const parsed = JSON.parse(raw);
-      data = parsed.data || data;
-      sequences = parsed.sequences || sequences;
-    } catch (err) {
-      console.error('Failed to parse data.json:', err);
-    }
-  } else {
-    saveDb();
-  }
+async function connect(uri) {
+  if (!uri) throw new Error('MONGODB_URI is not provided.');
+  await mongoose.connect(uri);
+  console.log('✅ MongoDB에 성공적으로 연결되었습니다.');
 }
 
-// 데이터 저장
-function saveDb() {
-  const exportData = {
-    data,
-    sequences
-  };
-  fs.writeFileSync(DB_PATH, JSON.stringify(exportData, null, 2), 'utf8');
+async function getNextId(Model) {
+  const lastDoc = await Model.findOne().sort({ id: -1 });
+  return lastDoc ? lastDoc.id + 1 : 1;
 }
-
-// 초기화
-loadDb();
 
 module.exports = {
-  getDb: () => data,
-  saveDb,
+  connect,
   
   // ===== Countries =====
-  getCountries: () => {
-    return [...data.countries].sort((a, b) => a.name.localeCompare(b.name));
+  getCountries: async () => {
+    return await Country.find().sort({ name: 1 }).lean();
   },
   
-  getCountryById: (id) => {
-    return data.countries.find(c => c.id === parseInt(id));
+  getCountryById: async (id) => {
+    return await Country.findOne({ id: parseInt(id) }).lean();
   },
   
-  getCountryByName: (name) => {
-    return data.countries.find(c => c.name === name);
+  getCountryByName: async (name) => {
+    return await Country.findOne({ name }).lean();
   },
 
-  getCountryByOwnerId: (ownerId) => {
-    return data.countries.find(c => c.owner_id === ownerId);
+  getCountryByOwnerId: async (ownerId) => {
+    return await Country.findOne({ owner_id: ownerId }).lean();
   },
   
-  searchCountriesByName: (keyword) => {
-    return data.countries
-      .filter(c => c.name.includes(keyword))
-      .slice(0, 25);
+  searchCountriesByName: async (keyword) => {
+    return await Country.find({ name: { $regex: keyword, $options: 'i' } })
+      .limit(25)
+      .lean();
   },
   
-  getCountriesOrderByGdp: () => {
-    return [...data.countries].sort((a, b) => (b.gdp || 0) - (a.gdp || 0));
+  getCountriesOrderByGdp: async () => {
+    return await Country.find().sort({ gdp: -1 }).lean();
   },
   
-  insertCountry: (countryData) => {
-    const id = sequences.countries++;
-    const newCountry = {
+  insertCountry: async (countryData) => {
+    const id = await getNextId(Country);
+    const newCountry = new Country({
       id,
       name: countryData.name,
       flag_emoji: countryData.flag_emoji || '🏳️',
@@ -94,66 +63,57 @@ module.exports = {
       stability: countryData.stability || 50,
       war_support: countryData.war_support || 50,
       color: countryData.color || '#5865F2',
-    };
-    data.countries.push(newCountry);
+    });
+    await newCountry.save();
     
-    // 기본 의회 설정 추가
-    data.parliament_config.push({
+    const newParliament = new Parliament({
       country_id: id,
       senate_total: 100,
       house_total: 300,
       senate_name: '상원',
       house_name: '하원'
     });
+    await newParliament.save();
     
-    saveDb();
     return id;
   },
   
-  updateCountry: (id, updates) => {
-    const index = data.countries.findIndex(c => c.id === parseInt(id));
-    if (index !== -1) {
-      data.countries[index] = { ...data.countries[index], ...updates };
-      saveDb();
-      return true;
-    }
-    return false;
+  updateCountry: async (id, updates) => {
+    const result = await Country.findOneAndUpdate({ id: parseInt(id) }, updates, { new: true });
+    return !!result;
   },
   
-  deleteCountry: (id) => {
+  deleteCountry: async (id) => {
     const cid = parseInt(id);
-    data.countries = data.countries.filter(c => c.id !== cid);
-    data.parties = data.parties.filter(p => p.country_id !== cid);
-    data.parliament_config = data.parliament_config.filter(p => p.country_id !== cid);
-    saveDb();
+    await Country.deleteOne({ id: cid });
+    await Party.deleteMany({ country_id: cid });
+    await Parliament.deleteOne({ country_id: cid });
   },
 
   // ===== Parliament =====
-  getParliament: (countryId) => {
-    return data.parliament_config.find(p => p.country_id === parseInt(countryId));
+  getParliament: async (countryId) => {
+    return await Parliament.findOne({ country_id: parseInt(countryId) }).lean();
   },
 
-  updateParliament: (countryId, config) => {
+  updateParliament: async (countryId, config) => {
     const cid = parseInt(countryId);
-    const index = data.parliament_config.findIndex(p => p.country_id === cid);
-    if (index !== -1) {
-      data.parliament_config[index] = { ...data.parliament_config[index], ...config };
-    } else {
-      data.parliament_config.push({ country_id: cid, ...config });
-    }
-    saveDb();
+    await Parliament.findOneAndUpdate(
+      { country_id: cid },
+      config,
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
   },
 
   // ===== Parties =====
-  getPartiesByCountry: (countryId) => {
-    return data.parties
-      .filter(p => p.country_id === parseInt(countryId))
-      .sort((a, b) => (b.house_seats || 0) - (a.house_seats || 0));
+  getPartiesByCountry: async (countryId) => {
+    return await Party.find({ country_id: parseInt(countryId) })
+      .sort({ house_seats: -1 })
+      .lean();
   },
 
-  insertParty: (partyData) => {
-    const id = sequences.parties++;
-    const newParty = {
+  insertParty: async (partyData) => {
+    const id = await getNextId(Party);
+    const newParty = new Party({
       id,
       country_id: parseInt(partyData.country_id),
       name: partyData.name,
@@ -162,24 +122,17 @@ module.exports = {
       support_rate: parseFloat(partyData.support_rate) || 0,
       senate_seats: parseInt(partyData.senate_seats) || 0,
       house_seats: parseInt(partyData.house_seats) || 0,
-    };
-    data.parties.push(newParty);
-    saveDb();
+    });
+    await newParty.save();
     return id;
   },
 
-  updateParty: (id, updates) => {
-    const index = data.parties.findIndex(p => p.id === parseInt(id));
-    if (index !== -1) {
-      data.parties[index] = { ...data.parties[index], ...updates };
-      saveDb();
-      return true;
-    }
-    return false;
+  updateParty: async (id, updates) => {
+    const result = await Party.findOneAndUpdate({ id: parseInt(id) }, updates, { new: true });
+    return !!result;
   },
 
-  deleteParty: (id) => {
-    data.parties = data.parties.filter(p => p.id !== parseInt(id));
-    saveDb();
+  deleteParty: async (id) => {
+    await Party.deleteOne({ id: parseInt(id) });
   }
 };

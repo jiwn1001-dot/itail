@@ -4,7 +4,7 @@ const db = require('../database/db');
 module.exports = {
   name: '국가목록',
   async execute(interaction) {
-    const countries = db.getCountriesOrderByGdp();
+    const countries = await db.getCountriesOrderByGdp();
 
     if (countries.length === 0) {
       await interaction.reply({
