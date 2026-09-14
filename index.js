@@ -1,7 +1,7 @@
 require('dotenv').config();
 const { createBot } = require('./bot');
 const { createServer } = require('./server');
-const db = require('./database/db'); // JSON DB 인스턴스 초기화
+const db = require('./database/db');
 
 async function main() {
   console.log('╔══════════════════════════════════════════╗');
@@ -11,8 +11,7 @@ async function main() {
   try {
     await db.connect(process.env.MONGODB_URI);
   } catch (err) {
-    console.error('❌ DB 연결 에러:', err.message);
-    process.exit(1);
+    console.warn('⚠️ DB 연결 경고:', err.message);
   }
 
   const countries = await db.getCountries();
