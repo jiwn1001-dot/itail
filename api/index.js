@@ -1,17 +1,22 @@
 const { createServer } = require('../server');
 const db = require('../database/db');
 
-let isDbInitialized = false;
+let app;
+let isDbConnected = false;
 
 module.exports = async (req, res) => {
-  if (!isDbInitialized) {
+  if (!isDbConnected) {
     try {
       await db.connect(process.env.MONGODB_URI);
     } catch (e) {
       db.useJsonFallback();
     }
-    isDbInitialized = true;
+    isDbConnected = true;
   }
-  const app = createServer();
+
+  if (!app) {
+    app = createServer();
+  }
+
   return app(req, res);
 };

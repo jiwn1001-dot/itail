@@ -19,9 +19,17 @@ function createServer() {
 
   app.use(express.static(path.join(__dirname, 'public')));
   
-  const uploadsDir = path.join(__dirname, 'uploads', 'leaders');
-  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+  const uploadsDir = process.env.VERCEL
+    ? path.join('/tmp', 'uploads', 'leaders')
+    : path.join(__dirname, 'uploads', 'leaders');
+
+  try {
+    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+  } catch (e) {
+    console.warn('⚠️ 업로드 디렉토리 생성 실패 (Vercel Read-Only 환경):', e.message);
+  }
+
+  app.use('/uploads', express.static(uploadsDir));
 
   const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, uploadsDir),
@@ -36,6 +44,10 @@ function createServer() {
     if (req.session && req.session.authenticated) return next();
     res.status(401).json({ error: '인증이 필요합니다' });
   }
+
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  });
 
   app.post('/api/login', (req, res) => {
     if (req.body.password === (process.env.ADMIN_PASSWORD || 'admin1234')) {
@@ -86,7 +98,7 @@ function createServer() {
 
   app.post('/api/upload/leader', requireAuth, upload.single('image'), (req, res) => {
     if (!req.file) return res.status(400).json({ error: '이미지 필요' });
-    res.json({ success: true, path: `/uploads/leaders/${req.file.filename}` });
+    res.json({ success: true, path: `/uploads/${req.file.filename}` });
   });
 
   app.put('/api/parliament/:countryId', requireAuth, async (req, res) => {
