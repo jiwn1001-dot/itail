@@ -70,8 +70,7 @@ function getStatusText(value) {
  * GDP 포맷팅
  */
 function formatGdp(gdp) {
-  if (gdp >= 1) return `$${gdp.toFixed(1)}조`;
-  return `$${(gdp * 1000).toFixed(0)}십억`;
+  return `$${parseFloat(gdp).toFixed(1)}`;
 }
 
 /**
@@ -150,8 +149,8 @@ function buildCountryEmbed(country, parties, parliament, serverUrl) {
         inline: false,
       },
       {
-        name: '💰 GDP',
-        value: formatGdp(country.gdp),
+        name: '💰 경제',
+        value: `GDP: ${formatGdp(country.gdp)}\n성장률: ${country.growth_rate > 0 ? '+' : ''}${country.growth_rate}%`,
         inline: true,
       },
       {

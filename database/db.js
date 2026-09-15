@@ -215,6 +215,7 @@ module.exports = {
         leader_description: countryData.leader_description || '',
         leader_image: countryData.leader_image || '',
         gdp: parseFloat(countryData.gdp) || 0,
+        growth_rate: parseFloat(countryData.growth_rate) || 0,
         army_power: parseInt(countryData.army_power) || 0,
         navy_power: parseInt(countryData.navy_power) || 0,
         airforce_power: parseInt(countryData.airforce_power) || 0,
@@ -248,6 +249,7 @@ module.exports = {
       leader_description: countryData.leader_description || '',
       leader_image: countryData.leader_image || '',
       gdp: parseFloat(countryData.gdp) || 0,
+      growth_rate: parseFloat(countryData.growth_rate) || 0,
       army_power: parseInt(countryData.army_power) || 0,
       navy_power: parseInt(countryData.navy_power) || 0,
       airforce_power: parseInt(countryData.airforce_power) || 0,
@@ -295,6 +297,33 @@ module.exports = {
     dbData.data.parties = dbData.data.parties.filter(p => p.country_id !== cid);
     dbData.data.parliament_config = dbData.data.parliament_config.filter(pc => pc.country_id !== cid);
     saveJsonData(dbData);
+  },
+
+  passTurn: async (turns) => {
+    let changed = [];
+    if (isMongoMode) {
+      const countries = await Country.find();
+      for (const c of countries) {
+        if (c.growth_rate !== 0) {
+          const oldGdp = c.gdp;
+          c.gdp = c.gdp * Math.pow(1 + (c.growth_rate / 100), turns);
+          await c.save();
+          changed.push({ name: c.name, oldGdp, newGdp: c.gdp, rate: c.growth_rate });
+        }
+      }
+      return changed;
+    }
+    
+    const dbData = loadJsonData();
+    for (const c of dbData.data.countries) {
+      if (c.growth_rate && c.growth_rate !== 0) {
+        const oldGdp = c.gdp;
+        c.gdp = c.gdp * Math.pow(1 + (c.growth_rate / 100), turns);
+        changed.push({ name: c.name, oldGdp, newGdp: c.gdp, rate: c.growth_rate });
+      }
+    }
+    saveJsonData(dbData);
+    return changed;
   },
 
   // ===== Parliament =====

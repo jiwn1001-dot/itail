@@ -1,5 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const db = require('../database/db');
+const { formatGdp } = require('../utils/embeds');
+
 
 module.exports = {
   name: '랭킹',
@@ -44,7 +46,7 @@ module.exports = {
     const list = topCountries.map((c, i) => {
       let valueText = '';
       if (field === 'gdp') {
-        valueText = c.gdp >= 1 ? `$${c.gdp.toFixed(1)}조` : `$${(c.gdp * 1000).toFixed(0)}십억`;
+        valueText = formatGdp(c.gdp);
       } else {
         valueText = `${c[field]} (전투력)`;
       }

@@ -49,6 +49,30 @@ const commands = [
           { name: '💰 경제 (GDP)', value: 'gdp' }
         )
     ),
+  new SlashCommandBuilder()
+    .setName('경제성장률')
+    .setDescription('특정 국가의 경제성장률(%)을 설정합니다')
+    .addStringOption(option =>
+      option.setName('이름')
+        .setDescription('조회할 국가명')
+        .setRequired(true)
+        .setAutocomplete(true)
+    )
+    .addNumberOption(option =>
+      option.setName('비율')
+        .setDescription('성장 비율 (예: 5.5 = 5.5%)')
+        .setRequired(true)
+    ),
+  new SlashCommandBuilder()
+    .setName('턴넘기기')
+    .setDescription('시간을 진행시켜 경제를 성장시킵니다')
+    .addIntegerOption(option =>
+      option.setName('턴수')
+        .setDescription('몇 턴을 넘길지 (기본 1턴)')
+        .setRequired(false)
+        .setMinValue(1)
+        .setMaxValue(100)
+    ),
 ].map(cmd => cmd.toJSON());
 
 async function deployCommands() {

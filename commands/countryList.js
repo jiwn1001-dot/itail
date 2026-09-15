@@ -1,5 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const db = require('../database/db');
+const { formatGdp } = require('../utils/embeds');
+
 
 module.exports = {
   name: '국가목록',
@@ -15,7 +17,7 @@ module.exports = {
     }
 
     const list = countries.map((c, i) => {
-      const gdpText = c.gdp >= 1 ? `$${c.gdp.toFixed(1)}조` : `$${(c.gdp * 1000).toFixed(0)}십억`;
+      const gdpText = formatGdp(c.gdp);
       const ownerText = c.owner_id ? ` (👤 배정됨)` : '';
       return `**${i + 1}.** ${c.flag_emoji} **${c.name}** — ${c.leader_title} ${c.leader_name} (GDP: ${gdpText})${ownerText}`;
     }).join('\n');

@@ -39,8 +39,7 @@ function getPowerColor(value) {
 
 // Format GDP
 function formatGdp(gdp) {
-  if (gdp >= 1) return `$${gdp.toFixed(1)}조`;
-  return `$${(gdp * 1000).toFixed(0)}B`;
+  return `$${parseFloat(gdp).toFixed(1)}`;
 }
 
 // Load and render countries

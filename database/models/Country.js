@@ -10,6 +10,7 @@ const countrySchema = new mongoose.Schema({
   leader_description: { type: String, default: '' },
   leader_image: { type: String, default: '' },
   gdp: { type: Number, default: 0 },
+  growth_rate: { type: Number, default: 0 },
   army_power: { type: Number, default: 0 },
   navy_power: { type: Number, default: 0 },
   airforce_power: { type: Number, default: 0 },
