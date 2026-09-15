@@ -2,6 +2,7 @@ require('dotenv').config();
 const { createBot } = require('./bot');
 const { createServer } = require('./server');
 const db = require('./database/db');
+const { deployCommands } = require('./commands/deploy');
 
 async function main() {
   console.log('╔══════════════════════════════════════════╗');
@@ -34,6 +35,7 @@ async function main() {
   const client = createBot();
   try {
     await client.login(token);
+    await deployCommands(); // 시작 시 슬래시 커맨드 자동 등록
   } catch (error) {
     console.error('❌ 봇 로그인 실패:', error.message);
   }

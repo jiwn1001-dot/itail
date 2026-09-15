@@ -35,6 +35,20 @@ const commands = [
   new SlashCommandBuilder()
     .setName('내국가')
     .setDescription('내게 배정된 국가 정보를 조회합니다'),
+  new SlashCommandBuilder()
+    .setName('랭킹')
+    .setDescription('분야별 국가 랭킹을 조회합니다')
+    .addStringOption(option =>
+      option.setName('분야')
+        .setDescription('조회할 랭킹 분야')
+        .setRequired(true)
+        .addChoices(
+          { name: '💪 육군', value: 'army_power' },
+          { name: '⚓ 해군', value: 'navy_power' },
+          { name: '✈️ 공군', value: 'airforce_power' },
+          { name: '💰 경제 (GDP)', value: 'gdp' }
+        )
+    ),
 ].map(cmd => cmd.toJSON());
 
 async function deployCommands() {
